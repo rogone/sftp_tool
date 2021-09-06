@@ -104,7 +104,9 @@ def upload(target):
     if path.isfile(target):
         sftp.put(target)
     else:
-        sftp.put_r(target, path.dirname(target), preserve_mtime=True) 
+        if not sftp.exists(target):
+            sftp.makedirs(target, mode=755)
+        sftp.put_r(target, target, preserve_mtime=True) 
 
 def download(target):
     sftp = get_conn()
@@ -135,7 +137,7 @@ def diff(target):
     if not sftp.isfile(target):
         raise MyException("remote %s is not a file" % target) 
 
-    os.system("vimdiff %s scp://%s@%s:%s/%s/%s" % (target,conf["USER_NAME"],conf["HOST"],conf["PORT"],conf['REMOTE_BASE_DIR'],target))
+    os.system("vimdiff %s scp://%s@%s:%s/%s/%s" % (target,conf["USER_NAME"], conf["HOST"],conf["PORT"],conf['REMOTE_BASE_DIR'],target))
 
 
 if __name__ == "__main__":
